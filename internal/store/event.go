@@ -113,7 +113,7 @@ func (s *Store) LatestOpenEvent(ctx context.Context, springID model.ID) (*model.
 		ORDER BY started_at DESC, id DESC LIMIT 1`, springID, model.PhaseConfirmed)
 	event, err := scanEvent(row)
 	if err != nil {
-		if isNotFound(unwrapStoreError(err)) {
+		if errors.Is(unwrapStoreError(err), sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("find open event: %w", err)
