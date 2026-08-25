@@ -116,8 +116,9 @@ func (s *Store) SensorBelongsToSpring(ctx context.Context, sensorID, springID mo
 }
 
 func (s *Store) UpdateSensorLatest(ctx context.Context, tx *sql.Tx, sensorID model.ID, value float64, observedAt time.Time) error {
-	result, err := tx.ExecContext(ctx, `UPDATE sensors SET last_value = ?, last_reading_at = ?, status = ? WHERE id = ?`,
-		value, formatTime(observedAt), model.SensorOnline, sensorID)
+	result, err := tx.ExecContext(ctx, `UPDATE sensors SET last_value = ?, last_reading_at = ?, status = ?
+		WHERE id = ? AND (last_reading_at IS NULL OR last_reading_at <= ?)`,
+		value, formatTime(observedAt), model.SensorOnline, sensorID, formatTime(observedAt))
 	if err != nil {
 		return fmt.Errorf("update sensor %d latest reading: %w", sensorID, err)
 	}

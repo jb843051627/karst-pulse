@@ -25,6 +25,10 @@ func (a *App) IngestReadings(ctx context.Context, inputs []model.ReadingInput) B
 		return result
 	}
 	for index, input := range inputs {
+		if err := ctx.Err(); err != nil {
+			result.Rejected = append(result.Rejected, IngestFailure{Index: index, Reason: fmt.Sprintf("batch canceled: %v", err)})
+			break
+		}
 		reading, err := a.IngestReading(ctx, input)
 		if err != nil {
 			result.Rejected = append(result.Rejected, IngestFailure{Index: index, Reason: err.Error()})

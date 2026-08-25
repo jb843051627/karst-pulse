@@ -107,8 +107,8 @@ func (s *Store) MarkDueMaintenance(ctx context.Context, now time.Time) (int, err
 }
 
 func (s *Store) CompleteMaintenance(ctx context.Context, id model.ID, now time.Time) (model.MaintenanceTask, error) {
-	result, err := s.db.ExecContext(ctx, `UPDATE maintenance_tasks SET status = ?, completed_at = ? WHERE id = ?`,
-		model.MaintenanceDone, formatTime(now), id)
+	result, err := s.db.ExecContext(ctx, `UPDATE maintenance_tasks SET status = ?, completed_at = ? WHERE id = ? AND status != ?`,
+		model.MaintenanceDone, formatTime(now), id, model.MaintenanceDone)
 	if err != nil {
 		return model.MaintenanceTask{}, fmt.Errorf("complete maintenance %d: %w", id, err)
 	}
