@@ -127,7 +127,13 @@ func (s *Store) UpdateSensorLatest(ctx context.Context, tx *sql.Tx, sensorID mod
 		return err
 	}
 	if count == 0 {
-		return fmt.Errorf("sensor %d not found", sensorID)
+		var exists int
+		if err := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM sensors WHERE id = ?)`, sensorID).Scan(&exists); err != nil {
+			return fmt.Errorf("check sensor %d after stale reading: %w", sensorID, err)
+		}
+		if exists != 1 {
+			return fmt.Errorf("sensor %d not found", sensorID)
+		}
 	}
 	return nil
 }
