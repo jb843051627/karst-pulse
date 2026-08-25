@@ -19,7 +19,7 @@ func (s *Store) CreateSpring(ctx context.Context, input model.SpringInput, now t
 	if err != nil {
 		return model.Spring{}, fmt.Errorf("create spring: %w", err)
 	}
-	id, err := lastInsertID(result)
+	id, err := insertedID(result)
 	if err != nil {
 		return model.Spring{}, err
 	}
