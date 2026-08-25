@@ -29,7 +29,7 @@ func (s *Store) transaction(ctx context.Context, fn func(*sql.Tx) error) error {
 	return nil
 }
 
-func lastInsertID(result sql.Result) (int64, error) {
+func insertedID(result sql.Result) (int64, error) {
 	id, err := result.LastInsertId()
 	if err != nil {
 		return 0, fmt.Errorf("read inserted id: %w", err)

@@ -18,7 +18,7 @@ func (s *Store) CreateBatch(ctx context.Context, input model.BatchInput, now tim
 	if err != nil {
 		return model.SamplingBatch{}, fmt.Errorf("create sampling batch: %w", err)
 	}
-	id, err := lastInsertID(result)
+	id, err := insertedID(result)
 	if err != nil {
 		return model.SamplingBatch{}, err
 	}
@@ -104,7 +104,7 @@ func (s *Store) CreateSample(ctx context.Context, batchID model.ID, input model.
 	if err != nil {
 		return model.Sample{}, fmt.Errorf("create sample: %w", err)
 	}
-	id, err := lastInsertID(result)
+	id, err := insertedID(result)
 	if err != nil {
 		return model.Sample{}, err
 	}

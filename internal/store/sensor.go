@@ -18,7 +18,7 @@ func (s *Store) CreateSensor(ctx context.Context, input model.SensorInput, now t
 	if err != nil {
 		return model.Sensor{}, fmt.Errorf("create sensor: %w", err)
 	}
-	id, err := lastInsertID(result)
+	id, err := insertedID(result)
 	if err != nil {
 		return model.Sensor{}, err
 	}
@@ -31,16 +31,16 @@ func (s *Store) GetSensor(ctx context.Context, id model.ID) (model.Sensor, error
 		       last_value, last_reading_at, created_at
 		FROM sensors WHERE id = ?`, id)
 	var sensor model.Sensor
-	var lastValue sqlNullFloat
-	var lastReading, created sql.NullString
+	var recentValue sqlNullFloat
+	var recentReading, created sql.NullString
 	if err := row.Scan(&sensor.ID, &sensor.SpringID, &sensor.SerialNo, &sensor.Kind, &sensor.Unit,
-		&sensor.ThresholdLow, &sensor.ThresholdHigh, &sensor.Status, &lastValue, &lastReading, &created); err != nil {
+		&sensor.ThresholdLow, &sensor.ThresholdHigh, &sensor.Status, &recentValue, &recentReading, &created); err != nil {
 		return model.Sensor{}, fmt.Errorf("get sensor %d: %w", id, err)
 	}
-	sensor.LastValue = lastValue.pointer()
+	sensor.LastValue = recentValue.pointer()
 	var err error
-	if lastReading.Valid && lastReading.String != "" {
-		parsed, parseErr := scanTime(lastReading.String)
+	if recentReading.Valid && recentReading.String != "" {
+		parsed, parseErr := scanTime(recentReading.String)
 		if parseErr != nil {
 			return model.Sensor{}, fmt.Errorf("parse sensor reading timestamp: %w", parseErr)
 		}
@@ -81,15 +81,15 @@ func (s *Store) ListSensors(ctx context.Context, filter model.ListFilter) ([]mod
 	items := make([]model.Sensor, 0)
 	for rows.Next() {
 		var item model.Sensor
-		var lastValue sqlNullFloat
-		var lastReading, created sql.NullString
+		var recentValue sqlNullFloat
+		var recentReading, created sql.NullString
 		if err := rows.Scan(&item.ID, &item.SpringID, &item.SerialNo, &item.Kind, &item.Unit,
-			&item.ThresholdLow, &item.ThresholdHigh, &item.Status, &lastValue, &lastReading, &created); err != nil {
+			&item.ThresholdLow, &item.ThresholdHigh, &item.Status, &recentValue, &recentReading, &created); err != nil {
 			return nil, fmt.Errorf("scan sensor: %w", err)
 		}
-		item.LastValue = lastValue.pointer()
-		if lastReading.Valid && lastReading.String != "" {
-			parsed, parseErr := scanTime(lastReading.String)
+		item.LastValue = recentValue.pointer()
+		if recentReading.Valid && recentReading.String != "" {
+			parsed, parseErr := scanTime(recentReading.String)
 			if parseErr != nil {
 				return nil, fmt.Errorf("parse sensor reading timestamp: %w", parseErr)
 			}

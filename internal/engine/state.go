@@ -8,12 +8,12 @@ import (
 )
 
 type springState struct {
-	previous float64
-	baseline float64
-	peak     float64
-	lastAt   time.Time
-	observed int
-	active   bool
+	previous   float64
+	baseline   float64
+	peak       float64
+	observedAt time.Time
+	observed   int
+	active     bool
 }
 
 type stateCache struct {

@@ -23,7 +23,7 @@ func (s *Store) IngestReading(ctx context.Context, input model.ReadingInput, now
 		if err != nil {
 			return fmt.Errorf("insert reading: %w", err)
 		}
-		id, err := lastInsertID(result)
+		id, err := insertedID(result)
 		if err != nil {
 			return err
 		}

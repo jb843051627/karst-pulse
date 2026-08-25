@@ -18,7 +18,7 @@ func (s *Store) CreateMaintenance(ctx context.Context, input model.MaintenanceIn
 	if err != nil {
 		return model.MaintenanceTask{}, fmt.Errorf("create maintenance task: %w", err)
 	}
-	id, err := lastInsertID(result)
+	id, err := insertedID(result)
 	if err != nil {
 		return model.MaintenanceTask{}, err
 	}

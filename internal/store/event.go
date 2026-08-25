@@ -20,7 +20,7 @@ func (s *Store) CreateEvent(ctx context.Context, evaluation model.PulseEvaluatio
 	if err != nil {
 		return model.PulseEvent{}, fmt.Errorf("create pulse event: %w", err)
 	}
-	id, err := lastInsertID(result)
+	id, err := insertedID(result)
 	if err != nil {
 		return model.PulseEvent{}, err
 	}

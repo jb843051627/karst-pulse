@@ -18,7 +18,7 @@ func (s *Store) CreateAlert(ctx context.Context, alert model.Alert) (model.Alert
 	if err != nil {
 		return model.Alert{}, fmt.Errorf("create alert: %w", err)
 	}
-	id, err := lastInsertID(result)
+	id, err := insertedID(result)
 	if err != nil {
 		return model.Alert{}, err
 	}

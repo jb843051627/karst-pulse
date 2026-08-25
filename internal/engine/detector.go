@@ -31,7 +31,7 @@ func (d *Detector) Observe(ctx context.Context, reading model.Reading) error {
 	defer d.mu.Unlock()
 	state, exists := d.cache.get(reading.SpringID)
 	if !exists || state.observed == 0 {
-		state = springState{previous: reading.Value, baseline: reading.Value, peak: reading.Value, lastAt: reading.ObservedAt, observed: 1}
+		state = springState{previous: reading.Value, baseline: reading.Value, peak: reading.Value, observedAt: reading.ObservedAt, observed: 1}
 		d.cache.put(reading.SpringID, state)
 		return nil
 	}
@@ -73,7 +73,7 @@ func (d *Detector) evaluate(state springState, reading model.Reading) model.Puls
 
 func (d *Detector) advance(state springState, reading model.Reading, phase model.PulsePhase) springState {
 	state.previous = reading.Value
-	state.lastAt = reading.ObservedAt
+	state.observedAt = reading.ObservedAt
 	state.observed++
 	if reading.Value > state.peak {
 		state.peak = reading.Value
