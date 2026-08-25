@@ -54,6 +54,9 @@ func (a *App) Trend(ctx context.Context, filter model.ListFilter) ([]model.Trend
 }
 
 func (a *App) PulseTimeline(ctx context.Context, eventID model.ID) (model.PulseTimeline, error) {
+	if err := ctx.Err(); err != nil {
+		return model.PulseTimeline{}, fmt.Errorf("pulse timeline canceled: %w", err)
+	}
 	event, err := a.GetEvent(ctx, eventID)
 	if err != nil {
 		return model.PulseTimeline{}, err

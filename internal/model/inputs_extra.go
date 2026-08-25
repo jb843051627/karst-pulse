@@ -71,8 +71,18 @@ func (a AlertInput) Normalize(now time.Time) Alert {
 	if !level.Valid() {
 		level = AlertInfo
 	}
+	var sensorID *ID
+	if a.SensorID != nil {
+		value := *a.SensorID
+		sensorID = &value
+	}
+	var eventID *ID
+	if a.EventID != nil {
+		value := *a.EventID
+		eventID = &value
+	}
 	return Alert{
-		SpringID: a.SpringID, SensorID: a.SensorID, EventID: a.EventID,
+		SpringID: a.SpringID, SensorID: sensorID, EventID: eventID,
 		Kind: strings.TrimSpace(a.Kind), Level: level, Status: AlertOpen,
 		Message: strings.TrimSpace(a.Message), TriggeredAt: triggered,
 	}
