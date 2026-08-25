@@ -47,6 +47,9 @@ func (a *App) ListEvents(ctx context.Context, filter model.ListFilter) (model.AP
 }
 
 func (a *App) LatestOpenEvent(ctx context.Context, springID model.ID) (*model.PulseEvent, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, fmt.Errorf("find open pulse event canceled: %w", err)
+	}
 	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
 	event, err := a.store.LatestOpenEvent(dbctx, springID)

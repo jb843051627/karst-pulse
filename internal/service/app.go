@@ -60,6 +60,8 @@ func page[T any](items []T, filter model.ListFilter) model.APIList[T] {
 	if items == nil {
 		items = make([]T, 0)
 	}
-	items = append([]T(nil), items...)
+	cloned := make([]T, len(items))
+	copy(cloned, items)
+	items = cloned
 	return model.APIList[T]{Items: items, Page: model.PageInfo{Limit: filter.Limit, Offset: filter.Offset, Count: len(items)}}
 }

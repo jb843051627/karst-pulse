@@ -37,7 +37,9 @@ func ApplyPage[T any](items []T, page model.PageInfo) model.APIList[T] {
 	if items == nil {
 		items = []T{}
 	}
-	items = append([]T(nil), items...)
+	cloned := make([]T, len(items))
+	copy(cloned, items)
+	items = cloned
 	page.Count = len(items)
 	return model.APIList[T]{Items: items, Page: page}
 }

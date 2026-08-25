@@ -35,6 +35,9 @@ func (a *App) CreateBatch(ctx context.Context, input model.BatchInput) (model.Sa
 }
 
 func (a *App) GetBatch(ctx context.Context, id model.ID) (model.SamplingBatch, error) {
+	if err := ctx.Err(); err != nil {
+		return model.SamplingBatch{}, fmt.Errorf("get batch canceled: %w", err)
+	}
 	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
 	batch, err := a.store.GetBatch(dbctx, id)

@@ -33,6 +33,9 @@ func (a *App) GetSensor(ctx context.Context, id model.ID) (model.Sensor, error) 
 	if id <= 0 {
 		return model.Sensor{}, fmt.Errorf("sensor id must be positive")
 	}
+	if err := ctx.Err(); err != nil {
+		return model.Sensor{}, fmt.Errorf("get sensor canceled: %w", err)
+	}
 	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
 	sensor, err := a.store.GetSensor(dbctx, id)

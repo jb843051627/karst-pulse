@@ -127,5 +127,7 @@ func trimReadings(series []model.Reading, from time.Time) []model.Reading {
 	if start == 0 {
 		return series
 	}
-	return append([]model.Reading(nil), series[start:]...)
+	trimmed := make([]model.Reading, len(series)-start)
+	copy(trimmed, series[start:])
+	return trimmed
 }
