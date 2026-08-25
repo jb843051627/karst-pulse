@@ -54,6 +54,9 @@ func (a *App) ListMaintenance(ctx context.Context, filter model.ListFilter) (mod
 }
 
 func (a *App) CompleteMaintenance(ctx context.Context, id model.ID) (model.MaintenanceTask, error) {
+	if err := ctx.Err(); err != nil {
+		return model.MaintenanceTask{}, fmt.Errorf("complete maintenance canceled: %w", err)
+	}
 	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
 	task, err := a.store.CompleteMaintenance(dbctx, id, a.Now())

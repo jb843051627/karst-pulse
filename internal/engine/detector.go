@@ -24,6 +24,9 @@ func (d *Detector) Observe(ctx context.Context, reading model.Reading) error {
 	if !reading.IsUsable() {
 		return nil
 	}
+	if err := ctx.Err(); err != nil {
+		return fmt.Errorf("observe pulse canceled: %w", err)
+	}
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	state, exists := d.cache.get(reading.SpringID)

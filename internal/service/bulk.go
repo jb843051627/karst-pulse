@@ -57,6 +57,10 @@ func (a *App) AddSamples(ctx context.Context, batchID model.ID, inputs []model.S
 		return items, failures
 	}
 	for index, input := range inputs {
+		if err := ctx.Err(); err != nil {
+			failures = append(failures, IngestFailure{Index: index, Reason: fmt.Sprintf("batch canceled: %v", err)})
+			break
+		}
 		sample, err := a.AddSample(ctx, batchID, input)
 		if err != nil {
 			failures = append(failures, IngestFailure{Index: index, Reason: err.Error()})

@@ -56,15 +56,14 @@ func (a *Aggregator) Aggregate(springID model.ID, now time.Time) WindowAggregate
 	if len(series) == 0 {
 		return result
 	}
-	result.Minimum = series[0].Value
 	for _, reading := range series {
 		if reading.ObservedAt.Before(from) || reading.ObservedAt.After(now) || !reading.IsUsable() {
 			continue
 		}
-		if reading.Value < result.Minimum {
+		if result.Count == 0 || reading.Value < result.Minimum {
 			result.Minimum = reading.Value
 		}
-		if reading.Value > result.Maximum {
+		if result.Count == 0 || reading.Value > result.Maximum {
 			result.Maximum = reading.Value
 		}
 		result.Average += reading.Value

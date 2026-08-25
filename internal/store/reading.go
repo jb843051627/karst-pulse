@@ -11,6 +11,9 @@ import (
 )
 
 func (s *Store) IngestReading(ctx context.Context, input model.ReadingInput, now time.Time) (model.Reading, error) {
+	if err := ctx.Err(); err != nil {
+		return model.Reading{}, fmt.Errorf("ingest reading canceled: %w", err)
+	}
 	var reading model.Reading
 	err := s.transaction(ctx, func(tx *sql.Tx) error {
 		result, err := tx.ExecContext(ctx, `
