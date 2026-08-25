@@ -17,7 +17,7 @@ type Runtime struct {
 	ctx      context.Context
 	cancel   context.CancelFunc
 	wg       sync.WaitGroup
-	mu       sync.Mutex
+	mu       sync.RWMutex
 	started  bool
 }
 

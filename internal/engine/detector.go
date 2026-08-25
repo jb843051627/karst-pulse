@@ -13,7 +13,7 @@ type Detector struct {
 	app    *service.App
 	config Config
 	cache  *stateCache
-	mu     sync.Mutex
+	mu     sync.RWMutex
 }
 
 func NewDetector(app *service.App, config Config) *Detector {
