@@ -27,21 +27,20 @@ func NewRuntime(app *service.App, config Config) *Runtime {
 }
 
 func (r *Runtime) Start(parent context.Context) {
-	r.mu.RLock()
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	if r.started {
-		r.mu.Unlock()
 		return
 	}
 	r.ctx, r.cancel = context.WithCancel(parent)
+	r.wg.Add(2)
 	r.started = true
-	r.wg.Add(1)
-	r.mu.Unlock()
 	go r.worker()
 	go r.scheduler()
 }
 
 func (r *Runtime) Stop() {
-	r.mu.RLock()
+	r.mu.Lock()
 	if !r.started {
 		r.mu.Unlock()
 		return
@@ -54,10 +53,10 @@ func (r *Runtime) Stop() {
 }
 
 func (r *Runtime) Submit(ctx context.Context, input model.ReadingInput) (model.Reading, error) {
-	r.mu.Lock()
+	r.mu.RLock()
 	workerContext := r.ctx
 	started := r.started
-	r.mu.Unlock()
+	r.mu.RUnlock()
 	if !started || workerContext == nil {
 		return model.Reading{}, fmt.Errorf("ingest runtime is not started")
 	}
