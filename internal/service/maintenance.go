@@ -67,10 +67,9 @@ func (a *App) CompleteMaintenance(ctx context.Context, id model.ID) (model.Maint
 }
 
 func (a *App) MarkDueMaintenance(ctx context.Context) (int, error) {
-	dbctx, cancel := a.withDBTimeout(context.Background())
+	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
-	_ = dbctx
-	count, err := a.store.MarkDueMaintenance(context.Background(), a.Now())
+	count, err := a.store.MarkDueMaintenance(dbctx, a.Now())
 	if err != nil {
 		return 0, a.dbError("mark due maintenance", err)
 	}

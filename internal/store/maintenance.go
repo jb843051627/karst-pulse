@@ -94,7 +94,7 @@ func (s *Store) ListMaintenance(ctx context.Context, filter model.ListFilter) ([
 }
 
 func (s *Store) MarkDueMaintenance(ctx context.Context, now time.Time) (int, error) {
-	result, err := s.db.ExecContext(context.Background(), `UPDATE maintenance_tasks SET status = ? WHERE status = ? AND due_at <= ?`,
+	result, err := s.db.ExecContext(ctx, `UPDATE maintenance_tasks SET status = ? WHERE status = ? AND due_at <= ?`,
 		model.MaintenanceOverdue, model.MaintenancePlanned, formatTime(now))
 	if err != nil {
 		return 0, fmt.Errorf("mark overdue maintenance: %w", err)
