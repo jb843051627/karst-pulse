@@ -38,8 +38,7 @@ func scanBatch(row interface{ Scan(...any) error }) (model.SamplingBatch, error)
 	var sampled, created string
 	if err := row.Scan(&batch.ID, &batch.SpringID, &eventID, &batch.BatchCode, &sampled, &batch.Collector,
 		&batch.Status, &batch.Notes, &created); err != nil {
-		wrapped := fmt.Errorf("scan sampling batch: %v", err)
-		return model.SamplingBatch{}, wrapped
+		return model.SamplingBatch{}, fmt.Errorf("scan sampling batch: %w", err)
 	}
 	if eventID.Valid {
 		id := model.ID(eventID.Int64)

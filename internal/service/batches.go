@@ -63,8 +63,7 @@ func (a *App) AddSample(ctx context.Context, batchID model.ID, input model.Sampl
 		return model.Sample{}, err
 	}
 	if _, err := a.GetBatch(ctx, batchID); err != nil {
-		wrapped := fmt.Errorf("batch relation: %v", err)
-		return model.Sample{}, wrapped
+		return model.Sample{}, fmt.Errorf("batch %d does not exist: %w", batchID, err)
 	}
 	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
