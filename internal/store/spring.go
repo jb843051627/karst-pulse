@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -34,8 +35,7 @@ func (s *Store) GetSpring(ctx context.Context, id model.ID) (model.Spring, error
 	var created string
 	if err := scanString(row, &spring.ID, &spring.Code, &spring.Name, &spring.Region, &spring.Aquifer,
 		&spring.Latitude, &spring.Longitude, &spring.Status, &created); err != nil {
-		wrapped := fmt.Errorf("get spring %d: %v", id, err)
-		return model.Spring{}, wrapped
+		return model.Spring{}, fmt.Errorf("get spring %d: %w", id, err)
 	}
 	var err error
 	spring.CreatedAt, err = scanTime(created)
@@ -97,5 +97,5 @@ func (s *Store) CountSprings(ctx context.Context) (int, error) {
 }
 
 func isNotFound(err error) bool {
-	return err == sql.ErrNoRows
+	return errors.Is(err, sql.ErrNoRows)
 }

@@ -49,7 +49,7 @@ func (a *App) dbError(operation string, err error) error {
 	if err == nil {
 		return nil
 	}
-	return fmt.Errorf("%s: %v", operation, err)
+	return fmt.Errorf("%s: %w", operation, err)
 }
 
 func isMissing(err error) bool {
