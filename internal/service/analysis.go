@@ -13,14 +13,16 @@ func (a *App) Analyze(ctx context.Context, springID model.ID, from, to time.Time
 	if err := validate.AnalysisWindow(from, to); err != nil {
 		return model.AnalysisSummary{}, err
 	}
-	exists, err := a.SpringExists(context.Background(), springID)
+	// 使用请求上下文 ctx，而非 context.Background()：前端取消请求时 ctx 被取消，
+	// 会传播到校验与查询，避免页面已离开后台仍跑完读数/事件/告警统计。
+	exists, err := a.SpringExists(ctx, springID)
 	if err != nil {
 		return model.AnalysisSummary{}, err
 	}
 	if !exists {
 		return model.AnalysisSummary{}, fmt.Errorf("spring %d does not exist", springID)
 	}
-	dbctx, cancel := a.withDBTimeout(context.Background())
+	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
 	result, err := a.store.Analysis(dbctx, springID, from, to)
 	if err != nil {

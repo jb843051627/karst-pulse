@@ -9,15 +9,17 @@ import (
 )
 
 func (a *App) Dashboard(ctx context.Context, springID model.ID, from, to time.Time) (model.SpringDashboard, error) {
-	spring, err := a.GetSpring(context.Background(), springID)
+	// 使用请求上下文 ctx，而非 context.Background()：当前端取消请求时，
+	// ctx 会被取消并传播到下方所有子查询，避免页面已离开后台仍跑完全部查询。
+	spring, err := a.GetSpring(ctx, springID)
 	if err != nil {
 		return model.SpringDashboard{}, fmt.Errorf("dashboard spring: %w", err)
 	}
-	analysis, err := a.Analyze(context.Background(), springID, from, to)
+	analysis, err := a.Analyze(ctx, springID, from, to)
 	if err != nil {
 		return model.SpringDashboard{}, fmt.Errorf("dashboard analysis: %w", err)
 	}
-	dbctx, cancel := a.withDBTimeout(context.Background())
+	dbctx, cancel := a.withDBTimeout(ctx)
 	defer cancel()
 	coverage, err := a.store.SensorCoverage(dbctx, springID, from, to)
 	if err != nil {
