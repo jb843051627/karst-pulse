@@ -51,7 +51,7 @@ func scanEvent(row interface{ Scan(...any) error }) (model.PulseEvent, error) {
 	if err != nil {
 		return model.PulseEvent{}, err
 	}
-	event.EndedAt, err = parseOptionalTime(peaked)
+	event.EndedAt, err = parseOptionalTime(ended)
 	if err != nil {
 		return model.PulseEvent{}, err
 	}

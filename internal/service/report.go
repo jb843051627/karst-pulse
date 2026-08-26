@@ -57,13 +57,13 @@ func (a *App) PulseTimeline(ctx context.Context, eventID model.ID) (model.PulseT
 	if err := ctx.Err(); err != nil {
 		return model.PulseTimeline{}, fmt.Errorf("pulse timeline canceled: %w", err)
 	}
-	event, err := a.GetEvent(context.Background(), eventID)
+	event, err := a.GetEvent(ctx, eventID)
 	if err != nil {
 		return model.PulseTimeline{}, err
 	}
 	end := event.UpdatedAt
 	if event.EndedAt != nil {
-		end = *event.PeakedAt
+		end = *event.EndedAt
 	}
 	return model.PulseTimeline{EventID: event.ID, SpringID: event.SpringID, Start: event.StartedAt, Peak: event.PeakValue, Duration: end.Sub(event.StartedAt), Severity: event.Severity, Completed: event.EndedAt != nil}, nil
 }
