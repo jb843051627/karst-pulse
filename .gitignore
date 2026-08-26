@@ -1,0 +1,11 @@
+data/
+*.db
+*.db-shm
+*.db-wal
+tmp/
+cases/
+_docker/
+create_*.py
+make_*.py
+*_fields.py
+__pycache__/

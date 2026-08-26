@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Karst Pulse 泉域工作台</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #edf3f1; color: #17332f; }
+    body { margin: 0; min-width: 320px; }
+    header { background: #17332f; color: #f6fbf8; padding: 24px clamp(18px, 5vw, 72px); }
+    main { max-width: 1160px; margin: 0 auto; padding: 26px clamp(18px, 5vw, 72px) 60px; }
+    .toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    button { border: 0; border-radius: 6px; background: #d27a39; color: white; padding: 10px 15px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #b95f25; }
+    input { border: 1px solid #a9c1b9; border-radius: 6px; padding: 10px; min-width: 180px; background: white; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+    .panel { background: white; border: 1px solid #d2e0da; border-radius: 6px; padding: 18px; box-shadow: 0 3px 12px #17332f0d; }
+    .panel h2 { margin: 0 0 10px; font-size: 17px; }
+    .value { font-size: 30px; font-weight: 750; color: #267365; }
+    table { width: 100%; border-collapse: collapse; margin-top: 22px; background: white; border: 1px solid #d2e0da; }
+    th, td { padding: 11px 13px; border-bottom: 1px solid #e2ece8; text-align: left; font-size: 14px; }
+    th { background: #dcebe5; color: #244d43; }
+    .status { color: #267365; font-weight: 700; }
+    #message { min-height: 1.4em; color: #7e4b2e; }
+    @media (max-width: 600px) { header { padding: 20px 18px; } main { padding: 20px 18px 40px; } table { display: block; overflow-x: auto; white-space: nowrap; } }
+  </style>
+</head>
+<body>
+  <header><strong>Karst Pulse</strong><div>喀斯特泉域观测与水文脉冲工作台</div></header>
+  <main>
+    <div class="toolbar"><input id="springId" type="number" min="1" placeholder="泉点 ID"><button id="refresh">刷新分析</button><span id="message"></span></div>
+    <section class="grid">
+      <article class="panel"><h2>观测读数</h2><div id="readingCount" class="value">-</div><div>窗口内有效读数</div></article>
+      <article class="panel"><h2>水文脉冲</h2><div id="eventCount" class="value">-</div><div>识别事件数</div></article>
+      <article class="panel"><h2>开放告警</h2><div id="alertCount" class="value">-</div><div>需要现场关注</div></article>
+      <article class="panel"><h2>水文信号</h2><div id="signal" class="value">-</div><div>综合分析结果</div></article>
+    </section>
+    <table><thead><tr><th>泉点</th><th>名称</th><th>区域</th><th>状态</th></tr></thead><tbody id="springs"></tbody></table>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    async function request(path) { const response = await fetch(path); const body = await response.json(); if (!response.ok) throw new Error(body.error?.message || '请求失败'); return body.data; }
+    async function refresh() {
+      $('message').textContent = '读取中...';
+      try {
+        const springs = await request('/api/v1/springs?limit=20');
+        $('springs').innerHTML = springs.items.map((spring) => `<tr><td>${spring.id}</td><td>${spring.name}</td><td>${spring.region}</td><td class="status">${spring.status}</td></tr>`).join('') || '<tr><td colspan="4">暂无泉点</td></tr>';
+        const id = Number($('springId').value) || springs.items[0]?.id;
+        if (!id) { ['readingCount', 'eventCount', 'alertCount', 'signal'].forEach((key) => $(key).textContent = '-'); $('message').textContent = '请先通过 API 创建泉点'; return; }
+        const summary = await request(`/api/v1/analysis?spring_id=${id}`);
+        $('readingCount').textContent = summary.readings.count;
+        $('eventCount').textContent = summary.pulse_events;
+        $('alertCount').textContent = summary.open_alerts;
+        $('signal').textContent = summary.water_signal;
+        $('message').textContent = `泉点 ${id} 已更新`;
+      } catch (error) { $('message').textContent = error.message; }
+    }
+    $('refresh').addEventListener('click', refresh); refresh();
+  </script>
+</body>
+</html>
