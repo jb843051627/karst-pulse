@@ -107,8 +107,9 @@ func (s *Store) MarkDueMaintenance(ctx context.Context, now time.Time) (int, err
 }
 
 func (s *Store) CompleteMaintenance(ctx context.Context, id model.ID, now time.Time) (model.MaintenanceTask, error) {
-	result, err := s.db.ExecContext(ctx, `UPDATE maintenance_tasks SET status = ?, completed_at = ? WHERE id = ?`,
-		model.MaintenanceDone, formatTime(now), id)
+	result, err := s.db.ExecContext(ctx, `UPDATE maintenance_tasks SET status = ?, completed_at = ? WHERE id = ? AND status IN (?, ?, ?)`,
+		model.MaintenanceDone, formatTime(now), id,
+		model.MaintenancePlanned, model.MaintenanceInProgress, model.MaintenanceOverdue)
 	if err != nil {
 		return model.MaintenanceTask{}, fmt.Errorf("complete maintenance %d: %w", id, err)
 	}
@@ -117,6 +118,13 @@ func (s *Store) CompleteMaintenance(ctx context.Context, id model.ID, now time.T
 		return model.MaintenanceTask{}, err
 	}
 	if count == 0 {
+		current, err := s.GetMaintenance(ctx, id)
+		if err != nil {
+			return model.MaintenanceTask{}, err
+		}
+		if current.Status == model.MaintenanceDone {
+			return model.MaintenanceTask{}, fmt.Errorf("maintenance task %d is already done", id)
+		}
 		return model.MaintenanceTask{}, fmt.Errorf("maintenance task %d not found", id)
 	}
 	return s.GetMaintenance(ctx, id)

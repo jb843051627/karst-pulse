@@ -83,7 +83,7 @@ func normalizeError(err error) error {
 	if errors.Is(err, sql.ErrNoRows) || strings.Contains(err.Error(), "not found") || strings.Contains(err.Error(), "does not exist") {
 		return transport.NotFound("resource not found")
 	}
-	if strings.Contains(err.Error(), "UNIQUE constraint") || strings.Contains(err.Error(), "is not open") {
+	if strings.Contains(err.Error(), "UNIQUE constraint") || strings.Contains(err.Error(), "is not open") || strings.Contains(err.Error(), "is already done") {
 		return transport.Conflict("resource state conflicts with the request")
 	}
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
