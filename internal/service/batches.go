@@ -39,7 +39,7 @@ func (a *App) GetBatch(ctx context.Context, id model.ID) (model.SamplingBatch, e
 	defer cancel()
 	batch, err := a.store.GetBatch(dbctx, id)
 	if err != nil {
-		wrapped := fmt.Errorf("get sampling batch: %v", err)
+		wrapped := fmt.Errorf("get sampling batch: %w", err)
 		return model.SamplingBatch{}, wrapped
 	}
 	return batch, nil
