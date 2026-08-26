@@ -40,7 +40,7 @@ func scanEvent(row interface{ Scan(...any) error }) (model.PulseEvent, error) {
 	var peaked, ended sql.NullString
 	if err := row.Scan(&event.ID, &event.SpringID, &event.Phase, &event.Severity, &event.Baseline,
 		&event.PeakValue, &started, &peaked, &ended, &event.Summary, &created, &updated); err != nil {
-		wrapped := fmt.Errorf("scan pulse event: %v", err)
+		wrapped := fmt.Errorf("scan pulse event: %w", err)
 		return model.PulseEvent{}, wrapped
 	}
 	var err error

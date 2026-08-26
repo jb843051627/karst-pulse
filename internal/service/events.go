@@ -30,8 +30,7 @@ func (a *App) GetEvent(ctx context.Context, id model.ID) (model.PulseEvent, erro
 	defer cancel()
 	event, err := a.store.GetEvent(dbctx, id)
 	if err != nil {
-		wrapped := fmt.Errorf("get pulse event: %v", err)
-		return model.PulseEvent{}, wrapped
+		return model.PulseEvent{}, a.dbError("get pulse event", err)
 	}
 	return event, nil
 }
