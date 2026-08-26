@@ -72,10 +72,19 @@ func (a AlertInput) Normalize(now time.Time) Alert {
 		level = AlertInfo
 	}
 	return Alert{
-		SpringID: a.SpringID, SensorID: a.SensorID, EventID: a.EventID,
+		SpringID: a.SpringID, SensorID: cloneID(a.SensorID), EventID: cloneID(a.EventID),
 		Kind: strings.TrimSpace(a.Kind), Level: level, Status: AlertOpen,
 		Message: strings.TrimSpace(a.Message), TriggeredAt: triggered,
 	}
+}
+
+// cloneID 复制可选 ID 指针指向的值，避免调用方事后修改影响已生成的告警。
+func cloneID(id *ID) *ID {
+	if id == nil {
+		return nil
+	}
+	value := *id
+	return &value
 }
 
 func (r ReadingInput) HasTimestamp() bool {

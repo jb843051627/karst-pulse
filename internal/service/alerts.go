@@ -21,8 +21,7 @@ func (a *App) CreateAlert(ctx context.Context, alert model.Alert) (model.Alert, 
 	defer cancel()
 	created, err := a.store.CreateAlert(dbctx, alert)
 	if err != nil {
-		wrapped := fmt.Errorf("create alert: %v", err)
-		return model.Alert{}, wrapped
+		return model.Alert{}, fmt.Errorf("create alert: %w", err)
 	}
 	a.metrics.Inc("alerts_created_total")
 	return created, nil
